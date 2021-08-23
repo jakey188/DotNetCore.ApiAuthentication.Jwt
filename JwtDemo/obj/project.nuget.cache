@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "CSVIOtpTLxiX6Jv2LQDYihJFSb4hUhID6hT7RfGMGTkdWumije29/DwLlXFf2Z2SlkLGN1YdPpp8diTsxDuiSQ==",
+  "dgSpecHash": "WSSHnqWXtDjjj5fzjK8GSU6GXqKdv4tGZ1CE4XpzpkAMW7pkB+Nsl4AisVc8RY0lVGEgKoYq1kgG6M+kfuMgUQ==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\JwtDemo\\JwtDemo.csproj",
+  "projectFilePath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\JwtDemo\\JwtDemo.csproj",
   "expectedPackageFiles": [
+    "D:\\ProgramData\\nuget\\packages\\csrediscore\\3.6.6\\csrediscore.3.6.6.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication\\2.2.0\\microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.2.0\\microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication.core\\2.2.0\\microsoft.aspnetcore.authentication.core.2.2.0.nupkg.sha512",
@@ -119,7 +120,8 @@
     "D:\\ProgramData\\nuget\\packages\\system.text.encodings.web\\4.5.0\\system.text.encodings.web.4.5.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
-    "D:\\ProgramData\\nuget\\packages\\system.threading.tasks.extensions\\4.5.1\\system.threading.tasks.extensions.4.5.1.nupkg.sha512"
+    "D:\\ProgramData\\nuget\\packages\\system.threading.tasks.extensions\\4.5.1\\system.threading.tasks.extensions.4.5.1.nupkg.sha512",
+    "D:\\ProgramData\\nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512"
   ],
   "logs": []
 }

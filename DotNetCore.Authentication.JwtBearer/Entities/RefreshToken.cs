@@ -17,9 +17,9 @@ namespace DotNetCore.Authentication.JwtBearer.Entities
         public string ClientId { get; set; }
 
         /// <summary>
-        /// 主题Id(如用户id)
+        /// 用户id
         /// </summary>
-        public string SubjectId { get; set; }
+        public string UserId { get; set; }
 
         /// <summary>
         /// RefreshToken

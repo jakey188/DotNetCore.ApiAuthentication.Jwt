@@ -7,6 +7,7 @@ using DotNetCore.Authentication.JwtBearer.Store;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CSRedis;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
@@ -65,6 +66,23 @@ namespace DotNetCore.Authentication.JwtBearer
                      //opt.SaveToken = true;
                      opt.TokenValidationParameters = tokenValidationParameters;
                  });
+        }
+
+
+        public static AuthenticationBuilder AddRedisStore(this AuthenticationBuilder build, string redisConnection)
+        {
+            var redis = new CSRedisClient(redisConnection);
+
+            RedisHelper.Initialization(redis);
+
+            build.Services.AddSingleton(c =>
+            {
+                return redis;
+            });
+
+            build.Services.AddSingleton<ITokenStore, RedisStore>();
+
+            return build;
         }
     }
 }

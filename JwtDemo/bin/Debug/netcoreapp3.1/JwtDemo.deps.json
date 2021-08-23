@@ -31,7 +31,7 @@
     ".NETCoreApp,Version=v3.1": {
       "JwtDemo/1.0.0": {
         "dependencies": {
-          "Onein.Authentication.JwtBearer": "1.0.0",
+          "DotNetCore.Authentication.JwtBearer": "1.0.0",
           "Microsoft.AspNetCore.Antiforgery": "3.1.0.0",
           "Microsoft.AspNetCore.Authentication.Abstractions.Reference": "3.1.0.0",
           "Microsoft.AspNetCore.Authentication.Cookies": "3.1.0.0",
@@ -299,7 +299,7 @@
           "System.Threading.Timer": "4.1.2.0",
           "System.Transactions": "4.0.0.0",
           "System.Transactions.Local": "4.0.2.0",
-          "System.ValueTuple": "4.0.3.0",
+          "System.ValueTuple.Reference": "4.0.3.0",
           "System.Web": "4.0.0.0",
           "System.Web.HttpUtility": "4.0.2.0",
           "System.Windows": "4.0.0.0",
@@ -320,6 +320,21 @@
         },
         "compile": {
           "JwtDemo.dll": {}
+        }
+      },
+      "CSRedisCore/3.6.6": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "System.ValueTuple": "4.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/CSRedisCore.dll": {
+            "assemblyVersion": "3.6.6.0",
+            "fileVersion": "3.6.6.0"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/CSRedisCore.dll": {}
         }
       },
       "Microsoft.AspNetCore.Authentication/2.2.0": {
@@ -1211,8 +1226,10 @@
         }
       },
       "System.Threading.Tasks.Extensions/4.5.1": {},
-      "Onein.Authentication.JwtBearer/1.0.0": {
+      "System.ValueTuple/4.5.0": {},
+      "DotNetCore.Authentication.JwtBearer/1.0.0": {
         "dependencies": {
+          "CSRedisCore": "3.6.6",
           "Microsoft.AspNetCore.Authentication": "2.2.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "2.2.0",
           "Microsoft.AspNetCore.Mvc.Abstractions": "2.2.0",
@@ -1221,10 +1238,10 @@
           "System.IdentityModel.Tokens.Jwt": "6.12.0"
         },
         "runtime": {
-          "Onein.Authentication.JwtBearer.dll": {}
+          "DotNetCore.Authentication.JwtBearer.dll": {}
         },
         "compile": {
-          "Onein.Authentication.JwtBearer.dll": {}
+          "DotNetCore.Authentication.JwtBearer.dll": {}
         }
       },
       "Microsoft.AspNetCore.Antiforgery/3.1.0.0": {
@@ -2829,7 +2846,7 @@
         },
         "compileOnly": true
       },
-      "System.ValueTuple/4.0.3.0": {
+      "System.ValueTuple.Reference/4.0.3.0": {
         "compile": {
           "System.ValueTuple.dll": {}
         },
@@ -2926,6 +2943,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "CSRedisCore/3.6.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fxP+ZuW3wj1425iILLyF+L1oTjWRM5odFn0p/LFYkUWzEfYznjBB7xzn716kVH3SxD0cSv7fj9Jaf1kKaPduRA==",
+      "path": "csrediscore/3.6.6",
+      "hashPath": "csrediscore.3.6.6.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication/2.2.0": {
       "type": "package",
@@ -3739,7 +3763,14 @@
       "path": "system.threading.tasks.extensions/4.5.1",
       "hashPath": "system.threading.tasks.extensions.4.5.1.nupkg.sha512"
     },
-    "Onein.Authentication.JwtBearer/1.0.0": {
+    "System.ValueTuple/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-RQnx6R+honvlyxoysBI1NV9bEpikdKVZP8q99XPg/jG2HAg8pJRlzyaAHFp3e6ThLRGbrTLn6eXuaJKTcgdqaA==",
+      "path": "system.valuetuple/4.5.0",
+      "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
+    },
+    "DotNetCore.Authentication.JwtBearer/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -5079,7 +5110,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "System.ValueTuple/4.0.3.0": {
+    "System.ValueTuple.Reference/4.0.3.0": {
       "type": "referenceassembly",
       "serviceable": false,
       "sha512": ""

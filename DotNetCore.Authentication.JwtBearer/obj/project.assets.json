@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     ".NETStandard,Version=v2.0": {
+      "CSRedisCore/3.6.6": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3",
+          "System.ValueTuple": "4.5.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/CSRedisCore.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/CSRedisCore.dll": {}
+        }
+      },
       "Microsoft.AspNetCore.Authentication/2.2.0": {
         "type": "package",
         "dependencies": {
@@ -1710,10 +1723,36 @@
         "runtime": {
           "lib/netstandard2.0/System.Threading.Tasks.Extensions.dll": {}
         }
+      },
+      "System.ValueTuple/4.5.0": {
+        "type": "package",
+        "compile": {
+          "ref/netstandard2.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {}
+        }
       }
     }
   },
   "libraries": {
+    "CSRedisCore/3.6.6": {
+      "sha512": "fxP+ZuW3wj1425iILLyF+L1oTjWRM5odFn0p/LFYkUWzEfYznjBB7xzn716kVH3SxD0cSv7fj9Jaf1kKaPduRA==",
+      "type": "package",
+      "path": "csrediscore/3.6.6",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "csrediscore.3.6.6.nupkg.sha512",
+        "csrediscore.nuspec",
+        "lib/net40/CSRedisCore.dll",
+        "lib/net40/CSRedisCore.xml",
+        "lib/net45/CSRedisCore.dll",
+        "lib/net45/CSRedisCore.xml",
+        "lib/netstandard2.0/CSRedisCore.dll",
+        "lib/netstandard2.0/CSRedisCore.xml"
+      ]
+    },
     "Microsoft.AspNetCore.Authentication/2.2.0": {
       "sha512": "JGa+5Y/d1tRvR1wdnKSoKEicY0trll+sQOqVuZs1mqg3OhC9S71JEdrsgQILqNUR0Ybp2waE2v3dkv17nXJ7Lg==",
       "type": "package",
@@ -5766,10 +5805,55 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "System.ValueTuple/4.5.0": {
+      "sha512": "RQnx6R+honvlyxoysBI1NV9bEpikdKVZP8q99XPg/jG2HAg8pJRlzyaAHFp3e6ThLRGbrTLn6eXuaJKTcgdqaA==",
+      "type": "package",
+      "path": "system.valuetuple/4.5.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net461/System.ValueTuple.dll",
+        "lib/net461/System.ValueTuple.xml",
+        "lib/net47/System.ValueTuple.dll",
+        "lib/net47/System.ValueTuple.xml",
+        "lib/netcoreapp2.0/_._",
+        "lib/netstandard1.0/System.ValueTuple.dll",
+        "lib/netstandard1.0/System.ValueTuple.xml",
+        "lib/netstandard2.0/_._",
+        "lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll",
+        "lib/portable-net40+sl4+win8+wp8/System.ValueTuple.xml",
+        "lib/uap10.0.16299/_._",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/net461/System.ValueTuple.dll",
+        "ref/net47/System.ValueTuple.dll",
+        "ref/netcoreapp2.0/_._",
+        "ref/netstandard2.0/_._",
+        "ref/portable-net40+sl4+win8+wp8/System.ValueTuple.dll",
+        "ref/uap10.0.16299/_._",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "system.valuetuple.4.5.0.nupkg.sha512",
+        "system.valuetuple.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.0": [
+      "CSRedisCore >= 3.6.6",
       "Microsoft.AspNetCore.Authentication >= 2.2.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 2.2.0",
       "Microsoft.AspNetCore.Mvc.Abstractions >= 2.2.0",
@@ -5786,11 +5870,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
+      "projectUniqueName": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
       "projectName": "DotNetCore.Authentication.JwtBearer",
-      "projectPath": "C:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
+      "projectPath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
       "packagesPath": "D:\\ProgramData\\nuget\\packages",
-      "outputPath": "C:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\obj\\",
+      "outputPath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -5824,6 +5908,10 @@
       "netstandard2.0": {
         "targetAlias": "netstandard2.0",
         "dependencies": {
+          "CSRedisCore": {
+            "target": "Package",
+            "version": "[3.6.6, )"
+          },
           "Microsoft.AspNetCore.Authentication": {
             "target": "Package",
             "version": "[2.2.0, )"

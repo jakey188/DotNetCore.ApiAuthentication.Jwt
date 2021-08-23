@@ -17,6 +17,7 @@ namespace DotNetCore.Authentication.JwtBearer
             Issuer = null;
             Audience = null;
             SecurityKey = new SymmetricSecurityKey(keyByteArray);
+            RefreshTokenUseLimit = true;
         }
 
         /// <summary>
@@ -48,5 +49,10 @@ namespace DotNetCore.Authentication.JwtBearer
         /// signing credentials
         /// </summary>
         public SecurityKey SecurityKey { get; set; }
+
+        /// <summary>
+        /// RefreshToken使用限制,默认true
+        /// </summary>
+        public bool RefreshTokenUseLimit { get; set; }
     }
 }

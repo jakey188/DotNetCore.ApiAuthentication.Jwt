@@ -41,12 +41,12 @@ namespace DotNetCore.Authentication.JwtBearer
         {
             var token = await _store.GetTokenAsync(refreshToken);
             if (token == null)
-                return new TokenResponse(true, "refresh token不存在");
+                return new TokenResponse(true, "refresh token 不存在");
 
             if (DateTime.UtcNow > token.Expiration)
-                return new TokenResponse(true, "refresh token过期");
+                return new TokenResponse(true, "refresh token 过期");
 
-            if (token.IsUsed)
+            if (token.IsUsed && _options.RefreshTokenUseLimit)
                 return new TokenResponse(true, "refresh token已使用");
 
             if (token.IsRevorked)
@@ -60,7 +60,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var claims = data.Select(c => new Claim(c.Key, c.Value)).ToArray();
 
-            return await CreateTokenAsync(claims, null);
+            return await CreateTokenAsync(claims, token.UserId);
         }
 
         /// <summary>
@@ -75,8 +75,10 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var claimList = new List<Claim>(claims);
 
-            if (!string.IsNullOrEmpty(id))
-                claimList.Add(new Claim("id", id));
+            var idKey = "id";
+
+            if (!string.IsNullOrEmpty(id) && !claims.Any(c => c.Type == idKey))
+                claimList.Add(new Claim(idKey, id));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -103,12 +105,12 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <summary>
         /// 创建TokenResponse
         /// </summary>
-        /// <param name="accessToken"></param>
-        /// <param name="now"></param>
+        /// <param name="accessToken">accessToken</param>
+        /// <param name="now">系统时间</param>
         /// <returns></returns>
         private async Task<TokenResponse> CreateTokenResponseAsync(string accessToken, DateTime now)
         {
-            var refreshToken = Guid.NewGuid().ToString("N"); //GenerateRefreshToken();
+            var refreshToken = Guid.NewGuid().ToString("N");
 
             var expiresIn = new DateTimeOffset(now).AddSeconds(_options.ExpiresIn).ToUnixTimeSeconds();
 
@@ -140,7 +142,7 @@ namespace DotNetCore.Authentication.JwtBearer
                 Id = Guid.NewGuid().ToString("N"),
                 IsUsed = false,
                 IsRevorked = false,
-                SubjectId = userId,
+                UserId = userId,
                 Data = JsonConvert.SerializeObject(data, setting)
             };
 

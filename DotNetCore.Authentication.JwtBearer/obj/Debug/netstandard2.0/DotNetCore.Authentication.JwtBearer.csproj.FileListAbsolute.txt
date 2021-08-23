@@ -6,3 +6,11 @@ C:\Users\Thinkpad\Desktop\git\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authen
 C:\Users\Thinkpad\Desktop\git\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.csproj.CoreCompileInputs.cache
 C:\Users\Thinkpad\Desktop\git\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.dll
 C:\Users\Thinkpad\Desktop\git\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.pdb
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\bin\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.deps.json
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\bin\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.dll
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\bin\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.pdb
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.AssemblyInfoInputs.cache
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.AssemblyInfo.cs
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.csproj.CoreCompileInputs.cache
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.dll
+E:\云畅\code\实验性\JWT\DotNetCore.ApiAuthentication.Jwt\DotNetCore.Authentication.JwtBearer\obj\Debug\netstandard2.0\DotNetCore.Authentication.JwtBearer.pdb

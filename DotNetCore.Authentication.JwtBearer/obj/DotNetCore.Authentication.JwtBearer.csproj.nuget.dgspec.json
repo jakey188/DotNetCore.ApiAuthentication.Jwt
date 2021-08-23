@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj": {}
+    "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj": {
+    "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
+        "projectUniqueName": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
         "projectName": "DotNetCore.Authentication.JwtBearer",
-        "projectPath": "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
+        "projectPath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
         "packagesPath": "D:\\ProgramData\\nuget\\packages",
-        "outputPath": "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\obj\\",
+        "outputPath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -45,6 +45,10 @@
         "netstandard2.0": {
           "targetAlias": "netstandard2.0",
           "dependencies": {
+            "CSRedisCore": {
+              "target": "Package",
+              "version": "[3.6.6, )"
+            },
             "Microsoft.AspNetCore.Authentication": {
               "target": "Package",
               "version": "[2.2.0, )"

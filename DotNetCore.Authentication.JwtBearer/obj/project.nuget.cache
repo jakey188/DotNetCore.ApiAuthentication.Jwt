@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "fFs+w486ttDywY8K2tYd+h3KARRp6M4HmVnkKxU5M8VrJBmrr1ctLkKMvIUibKIgVYdHg9AlF1izzLn3zcGaBA==",
+  "dgSpecHash": "PbuInKltLXMkMj3z6qDPbHbBY/BYQEAOd8va0ZUU/pvk8LyYAcX7EyS6uhUKLMFEqG2kMxTZjeZTmt8HVoPY/w==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Thinkpad\\Desktop\\git\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
+  "projectFilePath": "E:\\云畅\\code\\实验性\\JWT\\DotNetCore.ApiAuthentication.Jwt\\DotNetCore.Authentication.JwtBearer\\DotNetCore.Authentication.JwtBearer.csproj",
   "expectedPackageFiles": [
+    "D:\\ProgramData\\nuget\\packages\\csrediscore\\3.6.6\\csrediscore.3.6.6.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication\\2.2.0\\microsoft.aspnetcore.authentication.2.2.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.2.0\\microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\microsoft.aspnetcore.authentication.core\\2.2.0\\microsoft.aspnetcore.authentication.core.2.2.0.nupkg.sha512",
@@ -121,7 +122,8 @@
     "D:\\ProgramData\\nuget\\packages\\system.text.encodings.web\\4.5.0\\system.text.encodings.web.4.5.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\system.threading\\4.3.0\\system.threading.4.3.0.nupkg.sha512",
     "D:\\ProgramData\\nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
-    "D:\\ProgramData\\nuget\\packages\\system.threading.tasks.extensions\\4.5.1\\system.threading.tasks.extensions.4.5.1.nupkg.sha512"
+    "D:\\ProgramData\\nuget\\packages\\system.threading.tasks.extensions\\4.5.1\\system.threading.tasks.extensions.4.5.1.nupkg.sha512",
+    "D:\\ProgramData\\nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512"
   ],
   "logs": []
 }

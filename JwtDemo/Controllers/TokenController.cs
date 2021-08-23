@@ -25,7 +25,7 @@ namespace JwtDemo.Controllers
                  new Claim("name","赵四")
             };
 
-            var token = _builder.CreateTokenAsync(claims,"888");
+            var token = await _builder.CreateTokenAsync(claims,"888");
             return Ok(token);
         }
 
