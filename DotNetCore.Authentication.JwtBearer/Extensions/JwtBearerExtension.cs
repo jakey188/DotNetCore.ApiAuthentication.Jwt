@@ -3,16 +3,23 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using DotNetCore.Authentication.JwtBearer.Store;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using CSRedis;
+using Microsoft.AspNetCore.Builder;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
     public static class JwtBearerExtension
     {
+        public static IApplicationBuilder UseJwtTokenAuthorization(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<AccessTokenMiddleware>();
+
+            return app;
+        }
+
         public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services, Action<JwtOptions> action)
         {
             if (action == null) throw new ArgumentNullException($"{nameof(action)}不能为空");
@@ -38,7 +45,7 @@ namespace DotNetCore.Authentication.JwtBearer
         private static AuthenticationBuilder AddServices(IServiceCollection services,JwtOptions options)
         {
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<ITokenStore, MemoryStore>();
+            //services.AddSingleton<ITokenStore, MemoryStore>();
 
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -67,7 +74,6 @@ namespace DotNetCore.Authentication.JwtBearer
                      opt.TokenValidationParameters = tokenValidationParameters;
                  });
         }
-
 
         public static AuthenticationBuilder AddRedisStore(this AuthenticationBuilder build, string redisConnection)
         {

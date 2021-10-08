@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.19" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DotNetCore.Authentication.JwtBearer\DotNetCore.Authentication.JwtBearer.csproj" />
   </ItemGroup>
 

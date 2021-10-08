@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DotNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,16 +13,23 @@ namespace JwtDemo.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-
-        public UserController()
+        private readonly ITokenService _tokenService;
+        public UserController(ITokenService tokenService)
         {
+            _tokenService = tokenService;
         }
 
         [HttpGet("user/info")]
         public IActionResult UserInfo()
         {
-            var user = Request.HttpContext.User;
-            return Ok(user);
+            var data = Request.HttpContext.User.Claims;
+            return Ok(data);
+        }
+
+        [HttpGet("user/logout")]
+        public async Task<IActionResult> Logout()
+        {
+            return Ok(await Request.HttpContext.SignOut());
         }
     }
 }

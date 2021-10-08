@@ -33,28 +33,49 @@ namespace DotNetCore.Authentication.JwtBearer
         }
 
         /// <summary>
+        /// 获取AccessToken
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<AccessToken> GetAccessTokenAsync(string userId)
+        {
+            return await _store.GetAccessTokenAsync(userId);
+        }
+
+        /// <summary>
+        /// 移除当前用户关联Token
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
+        public async Task<bool> RemoveTokenAsync(string userId,string refreshToken)
+        {
+            return await _store.RemoveAccessTokenAsync(userId) && await _store.RemoveRefreshTokenAsync(refreshToken);
+        }
+
+        /// <summary>
         /// 创建RefreshToken
         /// </summary>
         /// <param name="refreshToken"></param>
         /// <returns></returns>
         public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken)
         {
-            var token = await _store.GetTokenAsync(refreshToken);
-            if (token == null)
-                return new TokenResponse(true, "refresh token 不存在");
+            var token = await _store.GetRefreshTokenAsync(refreshToken);
 
-            if (DateTime.UtcNow > token.Expiration)
-                return new TokenResponse(true, "refresh token 过期");
+            var result = CheckRefreshToken(token);
 
-            if (token.IsUsed && _options.RefreshTokenUseLimit)
-                return new TokenResponse(true, "refresh token已使用");
+            if (result.IsError) return result;
 
-            if (token.IsRevorked)
-                return new TokenResponse(true, "refresh token已撤销");
+            if (_options.RefreshTokenUseLimit)
+            {
+                await _store.RemoveRefreshTokenAsync(refreshToken);
+            }
+            else
+            {
+                token.IsUsed = true;
 
-            token.IsUsed = true;
-
-            await _store.UpdateAsync(token);
+                await _store.AddRefreshTokenAsync(token);
+            }
 
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(token.Data, setting);
 
@@ -64,21 +85,24 @@ namespace DotNetCore.Authentication.JwtBearer
         }
 
         /// <summary>
-        /// 创建Token
+        /// 创建TokenResponse
         /// </summary>
         /// <param name="claims"></param>
-        /// <param name="id">用户主键Id</param>
+        /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateTokenAsync(Claim[] claims, string id = null)
+        public async Task<TokenResponse> CreateTokenAsync(Claim[] claims, string userId = null)
         {
             var now = DateTime.UtcNow;
 
+            var refreshToken = Guid.NewGuid().ToString("N");
+
             var claimList = new List<Claim>(claims);
 
-            var idKey = "id";
+            if (!string.IsNullOrEmpty(userId) && !claims.Any(c => c.Type == AppConst.ClaimUserId))
+                claimList.Add(new Claim(AppConst.ClaimUserId, userId));
 
-            if (!string.IsNullOrEmpty(id) && !claims.Any(c => c.Type == idKey))
-                claimList.Add(new Claim(idKey, id));
+            if (!claims.Any(c => c.Type == AppConst.ClaimRefreshToken))
+                claimList.Add(new Claim(AppConst.ClaimRefreshToken, refreshToken));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -95,23 +119,16 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var accessToken = handler.WriteToken(securityToken);
 
-            var tokenResponse = await CreateTokenResponseAsync(accessToken, now);
+            var tokenResponse = await CreateTokenResponseAsync(accessToken, refreshToken, now);
 
-            await StoreTokenAsync(claimList, tokenResponse, id, now);
+            await AddTokenAsync(claimList, tokenResponse, userId, now);
 
             return tokenResponse;
         }
 
-        /// <summary>
-        /// 创建TokenResponse
-        /// </summary>
-        /// <param name="accessToken">accessToken</param>
-        /// <param name="now">系统时间</param>
-        /// <returns></returns>
-        private async Task<TokenResponse> CreateTokenResponseAsync(string accessToken, DateTime now)
+        #region private
+        private async Task<TokenResponse> CreateTokenResponseAsync(string accessToken, string refreshToken, DateTime now)
         {
-            var refreshToken = Guid.NewGuid().ToString("N");
-
             var expiresIn = new DateTimeOffset(now).AddSeconds(_options.ExpiresIn).ToUnixTimeSeconds();
 
             var refreshExpiresIn = new DateTimeOffset(now).AddSeconds(_options.RefreshExpiresIn).ToUnixTimeSeconds();
@@ -124,16 +141,16 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <summary>
         /// 持久化Token
         /// </summary>
-        /// <param name="refreshToken"></param>
+        /// <param name="claimList"></param>
+        /// <param name="response"></param>
         /// <param name="userId"></param>
         /// <param name="now"></param>
-        /// <param name="data"></param>
         /// <returns></returns>
-        private async Task StoreTokenAsync(List<Claim> claimList, TokenResponse response, string userId, DateTime now)
+        private async Task AddTokenAsync(List<Claim> claimList, TokenResponse response, string userId, DateTime now)
         {
             var data = claimList.ToDictionary(key => key.Type, value => value.Value);
 
-            var token = new RefreshToken
+            var refreshToken = new RefreshToken
             {
                 Token = response.RefreshToken,
                 ClientId = null,
@@ -146,7 +163,39 @@ namespace DotNetCore.Authentication.JwtBearer
                 Data = JsonConvert.SerializeObject(data, setting)
             };
 
-            await _store.AddAsync(token);
+            var accessToken = new AccessToken
+            {
+                Token = response.AccessToken,
+                Created = now,
+                Expiration = now.AddSeconds(_options.ExpiresIn),
+                Id = Guid.NewGuid().ToString("N"),
+                UserId = userId,
+            };
+
+            await _store.AddRefreshTokenAsync(refreshToken);
+            await _store.AddAccessTokenAsync(accessToken);
+        }
+
+        /// <summary>
+        /// 检验Token的有效性
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private TokenResponse CheckRefreshToken(RefreshToken token)
+        {
+            if (token == null)
+                return new TokenResponse(true, "refresh token 不存在");
+
+            if (DateTime.UtcNow > token.Expiration)
+                return new TokenResponse(true, "refreshToken 过期");
+
+            if (token.IsUsed && _options.RefreshTokenUseLimit)
+                return new TokenResponse(true, "refresh token已使用");
+
+            if (token.IsRevorked)
+                return new TokenResponse(true, "refresh token已撤销");
+
+            return new TokenResponse(false, "refresh token已撤销");
         }
 
         /// <summary>
@@ -163,5 +212,6 @@ namespace DotNetCore.Authentication.JwtBearer
                 return Convert.ToBase64String(randomBytes);
             }
         }
+        #endregion
     }
 }

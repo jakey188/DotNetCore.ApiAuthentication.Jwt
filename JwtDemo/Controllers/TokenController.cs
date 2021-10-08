@@ -19,13 +19,13 @@ namespace JwtDemo.Controllers
         }
 
         [HttpGet("token")]
-        public async Task<IActionResult> token()
+        public async Task<IActionResult> token(string id = "888")
         {
             var claims = new Claim[] {
                  new Claim("name","赵四")
             };
 
-            var token = await _builder.CreateTokenAsync(claims,"888");
+            var token = await _builder.CreateTokenAsync(claims, id);
             return Ok(token);
         }
 

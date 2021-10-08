@@ -10,15 +10,17 @@ namespace DotNetCore.Authentication.JwtBearer
         public JwtOptions()
         {
             var secret = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123";
-            var keyByteArray = Encoding.ASCII.GetBytes(secret);
             SignKey = secret;
             ExpiresIn = 1800;
             RefreshExpiresIn = 3600 * 24 * 15;
             Issuer = null;
             Audience = null;
-            SecurityKey = new SymmetricSecurityKey(keyByteArray);
+            SecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
             RefreshTokenUseLimit = true;
+            CachePrefix = "DotNetCore";
         }
+
+        public string CachePrefix { get; set; }
 
         /// <summary>
         /// 签名Key
@@ -28,7 +30,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <summary>
         /// AccessToken过期Unix时间戳(秒),默认30分钟
         /// </summary>
-        public int ExpiresIn { get; }
+        public int ExpiresIn { get; set; }
 
         /// <summary>
         /// RefreshToken过期Unix时间戳(秒),默认15天
