@@ -29,10 +29,13 @@ namespace JwtDemo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddJwtAuthentication(c => {
+            services.AddJwtAuthentication(c =>
+            {
                 c.RefreshTokenUseLimit = true;
                 //c.ExpiresIn = 100;
-            }).AddRedisStore("127.0.0.1");  
+            })
+            .AddMemoryStore();
+            //.AddRedisStore("127.0.0.1");
 
             services.AddSwaggerGen(option =>
             {
@@ -63,7 +66,7 @@ namespace JwtDemo
                 });
 
             });
-
+            
             services
                 .AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -93,7 +96,6 @@ namespace JwtDemo
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseJwtTokenAuthorization();
-
 
             app.UseEndpoints(endpoints =>
             {

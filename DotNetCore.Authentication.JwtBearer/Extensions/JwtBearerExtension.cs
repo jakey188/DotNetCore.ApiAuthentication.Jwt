@@ -75,6 +75,17 @@ namespace DotNetCore.Authentication.JwtBearer
                  });
         }
 
+        
+
+            public static AuthenticationBuilder AddMemoryStore(this AuthenticationBuilder build)
+        {
+            build.Services.AddMemoryCache();
+
+            build.Services.AddSingleton<ITokenStore, MemoryStore>();
+
+            return build;
+        }
+
         public static AuthenticationBuilder AddRedisStore(this AuthenticationBuilder build, string redisConnection)
         {
             var redis = new CSRedisClient(redisConnection);
