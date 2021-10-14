@@ -43,6 +43,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="context"></param>
         /// <param name="type"></param>
+        /// <param name="hasClaimCachePrefix"></param>
         /// <returns></returns>
         public static async Task<string> GetClaimsAsync(this HttpContext context, string type, bool hasClaimCachePrefix = false)
         {
@@ -52,6 +53,9 @@ namespace DotNetCore.Authentication.JwtBearer
             if (type.StartsWith(AppConst.ClaimCachePrefix)) hasClaimCachePrefix = false;
 
             var value = context.User.Claims.FirstOrDefault(x => x.Type == (hasClaimCachePrefix ? AppConst.ClaimCachePrefix + type : type))?.Value;
+
+            if (string.IsNullOrWhiteSpace(value))
+                value = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + type)?.Value;
 
             return await Task.FromResult(value);
         }
