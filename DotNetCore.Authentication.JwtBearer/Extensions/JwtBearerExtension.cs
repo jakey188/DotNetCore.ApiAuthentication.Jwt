@@ -15,7 +15,7 @@ namespace DotNetCore.Authentication.JwtBearer
     {
         public static IApplicationBuilder UseJwtTokenAuthorization(this IApplicationBuilder app)
         {
-            app.UseMiddleware<AccessTokenMiddleware>();
+            app.UseMiddleware<TokenMiddleware>();
 
             return app;
         }
@@ -31,6 +31,13 @@ namespace DotNetCore.Authentication.JwtBearer
             return AddServices(services, options);
         }
 
+        public static AuthenticationBuilder AddAuthorizationFilter<T>(this AuthenticationBuilder build) where T : class, IAuthorizationFilter
+        {
+            build.Services.AddSingleton<IAuthorizationFilter, T>();
+
+            return build;
+        }
+
         public static AuthenticationBuilder AddJwtAuthentication(this IServiceCollection services)
         {
             Action<JwtOptions> action = x => new JwtOptions();
@@ -42,10 +49,11 @@ namespace DotNetCore.Authentication.JwtBearer
             return AddServices(services, options);
         }
 
-        private static AuthenticationBuilder AddServices(IServiceCollection services,JwtOptions options)
+        private static AuthenticationBuilder AddServices(IServiceCollection services, JwtOptions options)
         {
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IAuthorizationFilter, DefaultAuthorizationFilter>();
             services.AddSingleton<ITokenService, TokenService>();
-            //services.AddSingleton<ITokenStore, MemoryStore>();
 
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -75,9 +83,8 @@ namespace DotNetCore.Authentication.JwtBearer
                  });
         }
 
-        
 
-            public static AuthenticationBuilder AddMemoryStore(this AuthenticationBuilder build)
+        public static AuthenticationBuilder AddMemoryStore(this AuthenticationBuilder build)
         {
             build.Services.AddMemoryCache();
 

@@ -31,11 +31,12 @@ namespace JwtDemo
         {
             services.AddJwtAuthentication(c =>
             {
-                c.RefreshTokenUseLimit = true;
                 //c.ExpiresIn = 100;
             })
-            .AddMemoryStore();
-            //.AddRedisStore("127.0.0.1");
+             .AddAuthorizationFilter<AllowAnonymousAuthorizationFilter>()
+             .AddAuthorizationFilter<AllowApiAuthorizationFilter>()
+            //.AddMemoryStore();
+            .AddRedisStore("127.0.0.1");
 
             services.AddSwaggerGen(option =>
             {

@@ -6,22 +6,27 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
-    public class AccessTokenMiddleware
+    public class TokenMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly JwtOptions _options;
         private readonly ITokenService _tokenService;
+        private readonly IAuthorizationFilter _authorizationFilter;
 
-        public AccessTokenMiddleware(RequestDelegate next,
+        public TokenMiddleware(RequestDelegate next,
             IOptions<JwtOptions> options,
-            ITokenService tokenService)
+            ITokenService tokenService,
+            IAuthorizationFilter authorizationFilter)
         {
             _next = next;
             _options = options.Value;
             _tokenService = tokenService;
+            _authorizationFilter = authorizationFilter;
         }
 
         public async Task Invoke(HttpContext context)
@@ -32,11 +37,15 @@ namespace DotNetCore.Authentication.JwtBearer
                 return;
             }
 
-            var inputToken = await context.GetAccessTokenAsync();
+            var authorizationFilterResult = await _authorizationFilter.AllowAsync(context);
 
-            var userId = await context.GetUserIdAsync();
+            if (authorizationFilterResult)
+            {
+                await _next(context);
+                return;
+            }
 
-            var token = await _tokenService.GetAccessTokenAsync(userId);
+            var token = await _tokenService.GetAccessTokenAsync();
 
             if (token == null)
             {
@@ -50,13 +59,9 @@ namespace DotNetCore.Authentication.JwtBearer
                 return;
             }
 
-            if (!token.Token.Equals(inputToken, StringComparison.OrdinalIgnoreCase))
-            {
-                await WriteAsync(context, "用户信息已失效");
-                return;
-            }
+            var _token = await context.GetAccessTokenAsync();
 
-            if (!token.Token.Equals(inputToken, StringComparison.OrdinalIgnoreCase))
+            if (!token.Token.Equals(_token, StringComparison.OrdinalIgnoreCase))
             {
                 await WriteAsync(context, "用户信息已失效");
                 return;

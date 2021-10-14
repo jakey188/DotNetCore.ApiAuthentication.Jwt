@@ -6,54 +6,67 @@ using DotNetCore.Authentication.JwtBearer.Entities;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
-    public class MemoryStore : ITokenStore
+    public class MemoryStore : StoreBase, ITokenStore
     {
         private readonly IMemoryCache _cache;
         private readonly JwtOptions _options;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public MemoryStore(IOptions<JwtOptions> options,
-            IMemoryCache cache)
+            IMemoryCache cache,
+            IHttpContextAccessor httpContextAccessor)
+            : base(options, httpContextAccessor)
         {
             _cache = cache;
             _options = options.Value;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<bool> AddAccessTokenAsync(AccessToken token)
+        public async Task<bool> AddTokenAsync(AccessToken accessToken, RefreshToken refreshToken)
         {
-            var entry = _cache.Set(GetAccessTokenCacheKey(token.UserId), token, TimeSpan.FromSeconds(_options.ExpiresIn));
+            var key = await GetAccessTokenCacheKeyAsync(refreshToken.UserClaimIdentitys);
 
-            return await Task.FromResult(entry != null);
+            var accessTokenEntry = _cache.Set(key, accessToken, TimeSpan.FromSeconds(_options.ExpiresIn));
+
+            var refreshTokenEntry = _cache.Set(await GetRefreshTokenCacheKeyAsync(refreshToken.Token), refreshToken, TimeSpan.FromSeconds(_options.RefreshExpiresIn)); ;
+
+            return await Task.FromResult(accessTokenEntry != null && refreshTokenEntry!=null);
         }
 
-        public async Task<AccessToken> GetAccessTokenAsync(string userId)
+        public async Task<AccessToken> GetAccessTokenAsync()
         {
-            if (_cache.TryGetValue(GetAccessTokenCacheKey(userId), out AccessToken token))
+            var key = await GetAccessTokenCacheKeyAsync();
+
+            if (_cache.TryGetValue(key, out AccessToken token))
             {
                 return await Task.FromResult(token);
             }
             return await Task.FromResult<AccessToken>(null);
         }
 
-        public async Task<bool> RemoveAccessTokenAsync(string userId)
+        public async Task<bool> RemoveAccessTokenAsync()
         {
-            _cache.Remove(GetAccessTokenCacheKey(userId));
+            var key = await GetAccessTokenCacheKeyAsync();
+            _cache.Remove(key);
             return await Task.FromResult(true);
         }
 
         public async Task<bool> AddRefreshTokenAsync(RefreshToken token)
         {
-            var entry = _cache.Set(GetRefreshTokenCacheKey(token.Token), token, TimeSpan.FromSeconds(_options.RefreshExpiresIn)); ;
+            var entry = _cache.Set(await GetRefreshTokenCacheKeyAsync(token.Token), token, TimeSpan.FromSeconds(_options.RefreshExpiresIn)); ;
 
             return await Task.FromResult(entry != null);
         }
 
 
-        public async Task<RefreshToken> GetRefreshTokenAsync(string refreshToken)
+        public async Task<RefreshToken> GetRefreshTokenAsync(string refreshToken=null)
         {
-            if (_cache.TryGetValue(GetRefreshTokenCacheKey(refreshToken), out RefreshToken token))
+            if (_cache.TryGetValue(await GetRefreshTokenCacheKeyAsync(refreshToken), out RefreshToken token))
             {
                 return await Task.FromResult(token);
             }
@@ -61,20 +74,10 @@ namespace DotNetCore.Authentication.JwtBearer
         }
 
 
-        public async Task<bool> RemoveRefreshTokenAsync(string refreshToken)
+        public async Task<bool> RemoveRefreshTokenAsync(string refreshToken = null)
         {
-            _cache.Remove(GetRefreshTokenCacheKey(refreshToken));
+            _cache.Remove(await GetRefreshTokenCacheKeyAsync(refreshToken));
             return await Task.FromResult(true);
-        }
-
-        private string GetRefreshTokenCacheKey(string refreshToken)
-        {
-            return $"{_options.CachePrefix}:Login:RefreshToken:{refreshToken}";
-        }
-
-        private string GetAccessTokenCacheKey(string userId)
-        {
-            return $"{_options.CachePrefix}:Login:AccessToken:{userId}";
         }
     }
 }

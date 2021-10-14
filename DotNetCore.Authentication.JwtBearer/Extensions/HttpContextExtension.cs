@@ -11,31 +11,57 @@ namespace DotNetCore.Authentication.JwtBearer
 {
     public static class HttpContextExtension
     {
+        /// <summary>
+        /// 退出
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static async Task<bool> SignOut(this HttpContext context)
         {
             var tokenService = context.Request.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
-            var userId = await context.GetUserIdAsync();
-
-            var refreshToken = await context.GetRefreshTokenAsync();
-
-            return await tokenService.RemoveTokenAsync(userId, refreshToken);
+            return await tokenService.RemoveTokenAsync();
         }
 
-        internal static async Task<string> GetUserIdAsync(this HttpContext context)
+        /// <summary>
+        /// 获取用户Id
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static async Task<string> GetUserIdAsync(this HttpContext context)
         {
             if (!context.User.Identity.IsAuthenticated)
-            {
                 return await Task.FromResult(string.Empty);
-            }
 
-            var userId = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimUserId)?.Value;
+            var userId = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + AppConst.ClaimUserId)?.Value;
 
             return await Task.FromResult(userId);
         }
 
+        /// <summary>
+        /// 获取Claim子项
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static async Task<string> GetClaimsAsync(this HttpContext context, string type, bool hasClaimCachePrefix = false)
+        {
+            if (!context.User.Identity.IsAuthenticated)
+                return await Task.FromResult(string.Empty);
 
-        internal static async Task<string> GetAccessTokenAsync(this HttpContext context)
+            if (type.StartsWith(AppConst.ClaimCachePrefix)) hasClaimCachePrefix = false;
+
+            var value = context.User.Claims.FirstOrDefault(x => x.Type == (hasClaimCachePrefix ? AppConst.ClaimCachePrefix + type : type))?.Value;
+
+            return await Task.FromResult(value);
+        }
+
+        /// <summary>
+        /// 获取AccessToken
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static async Task<string> GetAccessTokenAsync(this HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
 
@@ -45,19 +71,35 @@ namespace DotNetCore.Authentication.JwtBearer
             return await Task.FromResult(token);
         }
 
-        internal static async Task<string> GetRefreshTokenAsync(this HttpContext context)
+        /// <summary>
+        /// 获取RefreshToken
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static async Task<string> GetRefreshTokenAsync(this HttpContext context)
         {
-            var tokenStr = await GetAccessTokenAsync(context);
+            var refreshToken = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimRefreshToken)?.Value;
 
-            if (string.IsNullOrWhiteSpace(tokenStr)) return tokenStr;
+            return await Task.FromResult(refreshToken);
+        }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+        /// <summary>
+        /// 获取用户缓存Key字段
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        internal static async Task<SortedDictionary<string, string>> GetClaimIdentityAsync(this HttpContext context)
+        {
+            var claimList = context.User.Claims.Where(x => x.Type.StartsWith(AppConst.ClaimCachePrefix)).ToList();
 
-            var token = tokenHandler.ReadJwtToken(tokenStr);
+            var dic = new SortedDictionary<string, string>();
+            foreach (var claim in claimList)
+            {
+                if (!dic.ContainsKey(claim.Type))
+                    dic.Add(claim.Type.Replace(AppConst.ClaimCachePrefix, ""), claim.Value);
+            }
 
-            var refreshToken = token.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimRefreshToken)?.Value;
-
-            return refreshToken;
+            return await Task.FromResult(dic);
         }
     }
 }

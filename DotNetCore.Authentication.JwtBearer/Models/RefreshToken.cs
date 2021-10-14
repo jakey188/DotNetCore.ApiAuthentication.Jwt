@@ -49,6 +49,6 @@ namespace DotNetCore.Authentication.JwtBearer.Entities
         /// <summary>
         /// Claim数据
         /// </summary>
-        public string Data { get; set; }
+        public List<UserClaimIdentity> UserClaimIdentitys { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
@@ -19,38 +20,38 @@ namespace DotNetCore.Authentication.JwtBearer
         private readonly JwtOptions _options;
         private readonly ITokenStore _store;
         private readonly TokenValidationParameters _tokenValidation;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JsonSerializerSettings setting = new JsonSerializerSettings
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
         public TokenService(IOptions<JwtOptions> options,
             ITokenStore tokenStore,
-            TokenValidationParameters tokenValidation)
+            TokenValidationParameters tokenValidation,
+            IHttpContextAccessor httpContextAccessor)
         {
             _options = options.Value;
             _store = tokenStore;
             _tokenValidation = tokenValidation;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         /// <summary>
         /// 获取AccessToken
         /// </summary>
-        /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<AccessToken> GetAccessTokenAsync(string userId)
+        public async Task<AccessToken> GetAccessTokenAsync()
         {
-            return await _store.GetAccessTokenAsync(userId);
+            return await _store.GetAccessTokenAsync();
         }
 
         /// <summary>
         /// 移除当前用户关联Token
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="refreshToken"></param>
         /// <returns></returns>
-        public async Task<bool> RemoveTokenAsync(string userId,string refreshToken)
+        public async Task<bool> RemoveTokenAsync()
         {
-            return await _store.RemoveAccessTokenAsync(userId) && await _store.RemoveRefreshTokenAsync(refreshToken);
+            return await _store.RemoveAccessTokenAsync() && await _store.RemoveRefreshTokenAsync();
         }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="refreshToken"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken)
+        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null)
         {
             var token = await _store.GetRefreshTokenAsync(refreshToken);
 
@@ -77,29 +78,26 @@ namespace DotNetCore.Authentication.JwtBearer
                 await _store.AddRefreshTokenAsync(token);
             }
 
-            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(token.Data, setting);
-
-            var claims = data.Select(c => new Claim(c.Key, c.Value)).ToArray();
-
-            return await CreateTokenAsync(claims, token.UserId);
+            return await CreateTokenAsync(token.UserClaimIdentitys);
         }
 
         /// <summary>
         /// 创建TokenResponse
         /// </summary>
         /// <param name="claims"></param>
-        /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateTokenAsync(Claim[] claims, string userId = null)
+        public async Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims)
         {
+            var checkResponse = CheckClaims(claims);
+
+            if (checkResponse.IsError) return new TokenResponse(true, checkResponse.ErrorMessage);
+
             var now = DateTime.UtcNow;
 
             var refreshToken = Guid.NewGuid().ToString("N");
 
-            var claimList = new List<Claim>(claims);
-
-            if (!string.IsNullOrEmpty(userId) && !claims.Any(c => c.Type == AppConst.ClaimUserId))
-                claimList.Add(new Claim(AppConst.ClaimUserId, userId));
+            var claimList = claims.Where(c => c.IsCacheKey).Select(c => new Claim(AppConst.ClaimCachePrefix + c.Type, c.Value))
+                .Union(claims.Where(c => !c.IsCacheKey).Select(c => new Claim(c.Type, c.Value))).ToList();
 
             if (!claims.Any(c => c.Type == AppConst.ClaimRefreshToken))
                 claimList.Add(new Claim(AppConst.ClaimRefreshToken, refreshToken));
@@ -121,7 +119,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var tokenResponse = await CreateTokenResponseAsync(accessToken, refreshToken, now);
 
-            await AddTokenAsync(claimList, tokenResponse, userId, now);
+            await AddTokenAsync(claims, tokenResponse, now);
 
             return tokenResponse;
         }
@@ -146,9 +144,9 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <param name="userId"></param>
         /// <param name="now"></param>
         /// <returns></returns>
-        private async Task AddTokenAsync(List<Claim> claimList, TokenResponse response, string userId, DateTime now)
+        private async Task AddTokenAsync(List<UserClaimIdentity> claimList, TokenResponse response, DateTime now)
         {
-            var data = claimList.ToDictionary(key => key.Type, value => value.Value);
+            var primaryValue = claimList.FirstOrDefault(c => c.IsPrimaryKey)?.Value;
 
             var refreshToken = new RefreshToken
             {
@@ -159,8 +157,8 @@ namespace DotNetCore.Authentication.JwtBearer
                 Id = Guid.NewGuid().ToString("N"),
                 IsUsed = false,
                 IsRevorked = false,
-                UserId = userId,
-                Data = JsonConvert.SerializeObject(data, setting)
+                UserId = primaryValue,
+                UserClaimIdentitys = claimList
             };
 
             var accessToken = new AccessToken
@@ -169,11 +167,29 @@ namespace DotNetCore.Authentication.JwtBearer
                 Created = now,
                 Expiration = now.AddSeconds(_options.ExpiresIn),
                 Id = Guid.NewGuid().ToString("N"),
-                UserId = userId,
+                UserId = primaryValue,
             };
 
-            await _store.AddRefreshTokenAsync(refreshToken);
-            await _store.AddAccessTokenAsync(accessToken);
+            await _store.AddTokenAsync(accessToken, refreshToken);
+        }
+
+        /// <summary>
+        /// 检查Claim子项
+        /// </summary>
+        /// <param name="claims"></param>
+        /// <returns></returns>
+        private Response CheckClaims(List<UserClaimIdentity> claims)
+        {
+            if (claims == null || (claims != null && claims.Count == 0))
+                return new ErrorResponse($"{nameof(claims)}不能为空");
+
+            if (claims.Count(c => c.IsPrimaryKey) != 1)
+                return new ErrorResponse($"{nameof(claims)}只能有一个IsPrimaryKey");
+
+            if (claims.GroupBy(c => c.Type).Where(g => g.Count() > 1).Count() >= 1)
+                return new ErrorResponse($"{nameof(claims)}不允许有重复的Type");
+
+            return new OkResponse();
         }
 
         /// <summary>
@@ -195,7 +211,7 @@ namespace DotNetCore.Authentication.JwtBearer
             if (token.IsRevorked)
                 return new TokenResponse(true, "refresh token已撤销");
 
-            return new TokenResponse(false, "refresh token已撤销");
+            return new TokenResponse(false, "ok");
         }
 
         /// <summary>

@@ -21,11 +21,14 @@ namespace JwtDemo.Controllers
         [HttpGet("token")]
         public async Task<IActionResult> token(string id = "888")
         {
-            var claims = new Claim[] {
-                 new Claim("name","赵四")
+            var claims = new UserClaimIdentity[] 
+            {
+                 new UserClaimIdentity(AppConst.ClaimUserId,id,true,true),
+                 new UserClaimIdentity("appid","xxxx",true),
+                 new UserClaimIdentity("name","赵四")
             };
 
-            var token = await _builder.CreateTokenAsync(claims, id);
+            var token = await _builder.CreateTokenAsync(claims.ToList());
             return Ok(token);
         }
 
