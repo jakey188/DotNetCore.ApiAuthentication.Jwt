@@ -10,9 +10,11 @@ namespace DotNetCore.Authentication.JwtBearer
     {
         Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims);
 
-        Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null);
+        Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null, Dictionary<string, string> replaceClaim = null);
 
         Task<AccessToken> GetAccessTokenAsync();
+
+        Task<RefreshToken> GetRefreshTokenAsync(string refreshToken = null);
 
         Task<bool> RemoveTokenAsync();
     }

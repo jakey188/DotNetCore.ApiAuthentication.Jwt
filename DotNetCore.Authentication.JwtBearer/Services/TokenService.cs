@@ -55,11 +55,21 @@ namespace DotNetCore.Authentication.JwtBearer
         }
 
         /// <summary>
+        /// 获取RefreshToken
+        /// </summary>
+        /// <returns></returns>
+        public async Task<RefreshToken> GetRefreshTokenAsync(string refreshToken = null)
+        {
+            return await _store.GetRefreshTokenAsync(refreshToken);
+        }
+
+        /// <summary>
         /// 创建RefreshToken
         /// </summary>
         /// <param name="refreshToken"></param>
+        /// <param name="replaceClaim"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null)
+        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null, Dictionary<string, string> replaceClaim=null)
         {
             var token = await _store.GetRefreshTokenAsync(refreshToken);
 
@@ -76,6 +86,18 @@ namespace DotNetCore.Authentication.JwtBearer
                 token.IsUsed = true;
 
                 await _store.AddRefreshTokenAsync(token);
+            }
+
+            if (replaceClaim != null && replaceClaim.Count > 0)
+            {
+                foreach (var data in replaceClaim)
+                {
+                    var claim = token.UserClaimIdentitys.FirstOrDefault(c => c.Type == data.Key);
+                    if (claim != null)
+                    {
+                        claim.Value = data.Value;
+                    }
+                }
             }
 
             return await CreateTokenAsync(token.UserClaimIdentitys);

@@ -35,7 +35,11 @@ namespace JwtDemo.Controllers
         [HttpGet("refresh")]
         public async Task<IActionResult> refresh(string refreshtoken)
         {
-            var token = await _builder.CreateRefreshTokenAsync(refreshtoken);
+            var dic = new Dictionary<string, string>() 
+            {
+                {"appid","yyyy" }
+            };
+            var token = await _builder.CreateRefreshTokenAsync(refreshtoken, dic);
 
             if (token.IsError)
                 return Ok(token.ErrorMessage);

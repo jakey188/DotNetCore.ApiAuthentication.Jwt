@@ -50,7 +50,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <summary>
         /// signing credentials
         /// </summary>
-        public SecurityKey SecurityKey { get; set; }
+        public SecurityKey SecurityKey { get; private set; }
 
         /// <summary>
         /// RefreshToken使用限制,默认true
