@@ -49,7 +49,7 @@ namespace JwtDemo.Controllers
         [HttpGet("user/logout")]
         public async Task<IActionResult> Logout()
         {
-            return Ok(await Request.HttpContext.SignOutAsync());
+            return Ok(await Request.HttpContext.LogoutAsync());
         }
     }
 }

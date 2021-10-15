@@ -16,7 +16,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static async Task<bool> SignOutAsync(this HttpContext context)
+        public static async Task<bool> LogoutAsync(this HttpContext context)
         {
             var tokenService = context.Request.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
