@@ -41,7 +41,7 @@ namespace JwtDemo.Controllers
         public async Task<IActionResult> UserInfo(string type)
         {
             var uid = await Request.HttpContext.GetUserIdAsync();
-            var value = await Request.HttpContext.GetClaimsAsync(type);
+            var value = await Request.HttpContext.GetClaimValueAsync(type);
             var data = Request.HttpContext.User.Claims;
             return Ok(new { uid, value, data });
         }
@@ -49,7 +49,7 @@ namespace JwtDemo.Controllers
         [HttpGet("user/logout")]
         public async Task<IActionResult> Logout()
         {
-            return Ok(await Request.HttpContext.SignOut());
+            return Ok(await Request.HttpContext.SignOutAsync());
         }
     }
 }

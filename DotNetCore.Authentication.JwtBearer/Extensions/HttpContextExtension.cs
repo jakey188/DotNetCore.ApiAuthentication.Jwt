@@ -16,7 +16,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static async Task<bool> SignOut(this HttpContext context)
+        public static async Task<bool> SignOutAsync(this HttpContext context)
         {
             var tokenService = context.Request.HttpContext.RequestServices.GetRequiredService<ITokenService>();
 
@@ -30,12 +30,22 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <returns></returns>
         public static async Task<string> GetUserIdAsync(this HttpContext context)
         {
+            return await Task.FromResult(context.GetUserId());
+        }
+
+        /// <summary>
+        /// 获取用户Id
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string GetUserId(this HttpContext context)
+        {
             if (!context.User.Identity.IsAuthenticated)
-                return await Task.FromResult(string.Empty);
+                return string.Empty;
 
             var userId = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + AppConst.ClaimUserId)?.Value;
 
-            return await Task.FromResult(userId);
+            return userId;
         }
 
         /// <summary>
@@ -45,10 +55,22 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <param name="type"></param>
         /// <param name="hasClaimCachePrefix"></param>
         /// <returns></returns>
-        public static async Task<string> GetClaimsAsync(this HttpContext context, string type, bool hasClaimCachePrefix = false)
+        public static async Task<string> GetClaimValueAsync(this HttpContext context, string type, bool hasClaimCachePrefix = false)
+        {
+            return await Task.FromResult(context.GetClaimValue(type, hasClaimCachePrefix));
+        }
+
+        /// <summary>
+        /// 获取Claim子项
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="type"></param>
+        /// <param name="hasClaimCachePrefix"></param>
+        /// <returns></returns>
+        public static string GetClaimValue(this HttpContext context, string type, bool hasClaimCachePrefix = false)
         {
             if (!context.User.Identity.IsAuthenticated)
-                return await Task.FromResult(string.Empty);
+                return string.Empty;
 
             if (type.StartsWith(AppConst.ClaimCachePrefix)) hasClaimCachePrefix = false;
 
@@ -57,7 +79,7 @@ namespace DotNetCore.Authentication.JwtBearer
             if (string.IsNullOrWhiteSpace(value))
                 value = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + type)?.Value;
 
-            return await Task.FromResult(value);
+            return value;
         }
 
         /// <summary>
@@ -67,12 +89,22 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <returns></returns>
         public static async Task<string> GetAccessTokenAsync(this HttpContext context)
         {
+            return await Task.FromResult(context.GetAccessToken());
+        }
+
+        /// <summary>
+        /// 获取AccessToken
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string GetAccessToken(this HttpContext context)
+        {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
 
             if (string.IsNullOrWhiteSpace(token))
-                return await Task.FromResult(string.Empty);
+                return string.Empty;
 
-            return await Task.FromResult(token);
+            return token;
         }
 
         /// <summary>
