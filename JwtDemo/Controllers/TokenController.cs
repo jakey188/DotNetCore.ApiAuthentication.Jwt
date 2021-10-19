@@ -30,7 +30,7 @@ namespace JwtDemo.Controllers
 
             var payload = new List<ClaimPayload>() { new ClaimPayload { Key = "data", Value = new { appId = "1", userId = "22" } } };
 
-            var token = await _builder.CreateTokenAsync(claims.ToList());
+            var token = await _builder.CreateTokenAsync(claims.ToList(), payload);
             return Ok(token);
         }
 
