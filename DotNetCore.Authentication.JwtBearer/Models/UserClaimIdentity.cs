@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace DotNetCore.Authentication.JwtBearer
         {
             IsCacheKey = isPrimaryKey ? true : isCacheKey;
             IsPrimaryKey = isPrimaryKey;
-            Type = type;
+            Key = type;
             Value = value;
         }
         /// <summary>
@@ -25,10 +26,20 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <summary>
         /// 类型
         /// </summary>
-        public string Type { get; set; }
+        public string Key { get; set; }
         /// <summary>
         /// 值
         /// </summary>
         public string Value { get; set; }
+    }
+
+    public static class UserClaimIdentityExtensions
+    {
+        public static string GetClaimCacheKey(this List<UserClaimIdentity> claims)
+        {
+            var claimCache = claims.Where(c => c.IsCacheKey).OrderBy(c => c.Key).Select(c => c.Value).ToList();
+            var key = string.Join(":", claimCache).ToMd5();
+            return key;
+        }
     }
 }

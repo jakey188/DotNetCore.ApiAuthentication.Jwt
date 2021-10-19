@@ -28,6 +28,8 @@ namespace JwtDemo.Controllers
                  new UserClaimIdentity("name","赵四")
             };
 
+            var payload = new List<ClaimPayload>() { new ClaimPayload { Key = "data", Value = new { appId = "1", userId = "22" } } };
+
             var token = await _builder.CreateTokenAsync(claims.ToList());
             return Ok(token);
         }

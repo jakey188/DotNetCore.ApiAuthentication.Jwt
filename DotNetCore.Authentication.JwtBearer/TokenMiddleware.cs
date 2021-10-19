@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace DotNetCore.Authentication.JwtBearer
 {
@@ -17,22 +18,26 @@ namespace DotNetCore.Authentication.JwtBearer
         private readonly JwtOptions _options;
         private readonly ITokenService _tokenService;
         private readonly IAuthorizationFilter _authorizationFilter;
+        private readonly ILogger _logger;
 
         public TokenMiddleware(RequestDelegate next,
             IOptions<JwtOptions> options,
             ITokenService tokenService,
-            IAuthorizationFilter authorizationFilter)
+            IAuthorizationFilter authorizationFilter,
+            ILogger<TokenMiddleware> logger)
         {
             _next = next;
             _options = options.Value;
             _tokenService = tokenService;
             _authorizationFilter = authorizationFilter;
+            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
         {
             if (!context.User.Identity.IsAuthenticated)
             {
+                _logger.LogDebug("用户未登录");
                 await _next(context);
                 return;
             }
@@ -41,6 +46,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             if (authorizationFilterResult)
             {
+                _logger.LogDebug("跳过登录验证");
                 await _next(context);
                 return;
             }
@@ -49,12 +55,14 @@ namespace DotNetCore.Authentication.JwtBearer
 
             if (token == null)
             {
+                _logger.LogDebug("用户信息已失效或未登录");
                 await WriteAsync(context, "用户信息已失效或未登录");
                 return;
             }
 
             if (DateTime.UtcNow > token.Expiration)
             {
+                _logger.LogDebug("用户信息已过期");
                 await WriteAsync(context, "用户信息已过期");
                 return;
             }
@@ -63,6 +71,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             if (!token.Token.Equals(_token, StringComparison.OrdinalIgnoreCase))
             {
+                _logger.LogDebug("用户信息已失效");
                 await WriteAsync(context, "用户信息已失效");
                 return;
             }

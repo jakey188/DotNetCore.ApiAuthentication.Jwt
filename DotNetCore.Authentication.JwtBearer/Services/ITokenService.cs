@@ -8,7 +8,7 @@ namespace DotNetCore.Authentication.JwtBearer
 {
     public interface ITokenService
     {
-        Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims);
+        Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims, List<ClaimPayload> payload = null);
 
         Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null, Dictionary<string, string> replaceClaim = null);
 

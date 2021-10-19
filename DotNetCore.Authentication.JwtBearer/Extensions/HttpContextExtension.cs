@@ -43,7 +43,7 @@ namespace DotNetCore.Authentication.JwtBearer
             if (!context.User.Identity.IsAuthenticated)
                 return string.Empty;
 
-            var userId = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + AppConst.ClaimUserId)?.Value;
+            var userId = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimUserId)?.Value;
 
             return userId;
         }
@@ -53,11 +53,10 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="context"></param>
         /// <param name="type"></param>
-        /// <param name="hasClaimCachePrefix"></param>
         /// <returns></returns>
-        public static async Task<string> GetClaimValueAsync(this HttpContext context, string type, bool hasClaimCachePrefix = false)
+        public static async Task<string> GetClaimValueAsync(this HttpContext context, string type)
         {
-            return await Task.FromResult(context.GetClaimValue(type, hasClaimCachePrefix));
+            return await Task.FromResult(context.GetClaimValue(type));
         }
 
         /// <summary>
@@ -65,19 +64,13 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="context"></param>
         /// <param name="type"></param>
-        /// <param name="hasClaimCachePrefix"></param>
         /// <returns></returns>
-        public static string GetClaimValue(this HttpContext context, string type, bool hasClaimCachePrefix = false)
+        public static string GetClaimValue(this HttpContext context, string type)
         {
             if (!context.User.Identity.IsAuthenticated)
                 return string.Empty;
 
-            if (type.StartsWith(AppConst.ClaimCachePrefix)) hasClaimCachePrefix = false;
-
-            var value = context.User.Claims.FirstOrDefault(x => x.Type == (hasClaimCachePrefix ? AppConst.ClaimCachePrefix + type : type))?.Value;
-
-            if (string.IsNullOrWhiteSpace(value))
-                value = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimCachePrefix + type)?.Value;
+            var value = context.User.Claims.FirstOrDefault(x => x.Type == type)?.Value;
 
             return value;
         }
@@ -117,25 +110,6 @@ namespace DotNetCore.Authentication.JwtBearer
             var refreshToken = context.User.Claims.FirstOrDefault(x => x.Type == AppConst.ClaimRefreshToken)?.Value;
 
             return await Task.FromResult(refreshToken);
-        }
-
-        /// <summary>
-        /// 获取用户缓存Key字段
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        internal static async Task<SortedDictionary<string, string>> GetClaimIdentityAsync(this HttpContext context)
-        {
-            var claimList = context.User.Claims.Where(x => x.Type.StartsWith(AppConst.ClaimCachePrefix)).ToList();
-
-            var dic = new SortedDictionary<string, string>();
-            foreach (var claim in claimList)
-            {
-                if (!dic.ContainsKey(claim.Type))
-                    dic.Add(claim.Type.Replace(AppConst.ClaimCachePrefix, ""), claim.Value);
-            }
-
-            return await Task.FromResult(dic);
         }
     }
 }

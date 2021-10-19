@@ -92,7 +92,7 @@ namespace DotNetCore.Authentication.JwtBearer
             {
                 foreach (var data in replaceClaim)
                 {
-                    var claim = token.UserClaimIdentitys.FirstOrDefault(c => c.Type == data.Key);
+                    var claim = token.UserClaimIdentitys.FirstOrDefault(c => c.Key == data.Key);
                     if (claim != null)
                     {
                         claim.Value = data.Value;
@@ -100,7 +100,7 @@ namespace DotNetCore.Authentication.JwtBearer
                 }
             }
 
-            return await CreateTokenAsync(token.UserClaimIdentitys);
+            return await CreateTokenAsync(token.UserClaimIdentitys, token.ClaimPayload);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims)
+        public async Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims, List<ClaimPayload> payload = null)
         {
             var checkResponse = CheckClaims(claims);
 
@@ -118,15 +118,18 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var refreshToken = Guid.NewGuid().ToString("N");
 
-            var claimList = claims.Where(c => c.IsCacheKey).Select(c => new Claim(AppConst.ClaimCachePrefix + c.Type, c.Value))
-                .Union(claims.Where(c => !c.IsCacheKey).Select(c => new Claim(c.Type, c.Value))).ToList();
+            var claimList = claims.Select(c => new Claim(c.Key, c.Value)).ToList();
 
-            if (!claims.Any(c => c.Type == AppConst.ClaimRefreshToken))
+            if (!claims.Any(c => c.Key == AppConst.ClaimRefreshToken))
                 claimList.Add(new Claim(AppConst.ClaimRefreshToken, refreshToken));
+
+            if (!claims.Any(c => c.Key == AppConst.ClaimAccessTokenCacheKey))
+                claimList.Add(new Claim(AppConst.ClaimAccessTokenCacheKey, claims.GetClaimCacheKey()));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claimList),
+                Claims = payload?.ToDictionary(key => key.Key, value => value.Value),
                 Expires = now.AddSeconds(_options.ExpiresIn),
                 Issuer = _options.Issuer,
                 Audience = _options.Audience,
@@ -141,7 +144,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             var tokenResponse = await CreateTokenResponseAsync(accessToken, refreshToken, now);
 
-            await AddTokenAsync(claims, tokenResponse, now);
+            await AddTokenAsync(claims, payload, tokenResponse, now);
 
             return tokenResponse;
         }
@@ -163,10 +166,9 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="claimList"></param>
         /// <param name="response"></param>
-        /// <param name="userId"></param>
         /// <param name="now"></param>
         /// <returns></returns>
-        private async Task AddTokenAsync(List<UserClaimIdentity> claimList, TokenResponse response, DateTime now)
+        private async Task AddTokenAsync(List<UserClaimIdentity> claimList, List<ClaimPayload> payload , TokenResponse response, DateTime now)
         {
             var primaryValue = claimList.FirstOrDefault(c => c.IsPrimaryKey)?.Value;
 
@@ -180,7 +182,8 @@ namespace DotNetCore.Authentication.JwtBearer
                 IsUsed = false,
                 IsRevorked = false,
                 UserId = primaryValue,
-                UserClaimIdentitys = claimList
+                UserClaimIdentitys = claimList,
+                ClaimPayload = payload
             };
 
             var accessToken = new AccessToken
@@ -208,7 +211,7 @@ namespace DotNetCore.Authentication.JwtBearer
             if (claims.Count(c => c.IsPrimaryKey) != 1)
                 return new ErrorResponse($"{nameof(claims)}只能有一个IsPrimaryKey");
 
-            if (claims.GroupBy(c => c.Type).Where(g => g.Count() > 1).Count() >= 1)
+            if (claims.GroupBy(c => c.Key).Where(g => g.Count() > 1).Count() >= 1)
                 return new ErrorResponse($"{nameof(claims)}不允许有重复的Type");
 
             return new OkResponse();

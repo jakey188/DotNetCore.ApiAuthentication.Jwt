@@ -6,8 +6,17 @@ namespace DotNetCore.Authentication.JwtBearer
 {
     public class AppConst
     {
-        public const string ClaimUserId = "uid";
-        public const string ClaimCachePrefix = "cache-";
-        public const string ClaimRefreshToken = "key";
+        /// <summary>
+        /// 用户id
+        /// </summary>
+        public const string ClaimUserId = "id";
+        /// <summary>
+        /// RefreshToken
+        /// </summary>
+        public const string ClaimRefreshToken = "token";
+        /// <summary>
+        /// AccessToken缓存Key
+        /// </summary>
+        public const string ClaimAccessTokenCacheKey = "key";
     }
 }

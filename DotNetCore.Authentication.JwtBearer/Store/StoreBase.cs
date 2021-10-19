@@ -20,7 +20,11 @@ namespace DotNetCore.Authentication.JwtBearer
             _httpContextAccessor = httpContextAccessor;
         }
 
-        
+        /// <summary>
+        /// 获取RefreshToken缓存Key
+        /// </summary>
+        /// <param name="refreshToken"></param>
+        /// <returns></returns>
         protected async Task<string> GetRefreshTokenCacheKeyAsync(string refreshToken=null)
         {
             if(string.IsNullOrWhiteSpace(refreshToken))
@@ -28,36 +32,31 @@ namespace DotNetCore.Authentication.JwtBearer
             return $"{_options.CachePrefix}:Login:RefreshToken:{refreshToken}";
         }
 
+        /// <summary>
+        /// 获取AccessToken缓存Key
+        /// </summary>
+        /// <param name="claimList"></param>
+        /// <returns></returns>
         protected async Task<string> GetAccessTokenCacheKeyAsync(List<UserClaimIdentity> claimList=null)
         {
-            var claimIdentity = new SortedDictionary<string, string>();
+            var cacheKey = string.Empty;
+
+            var uid = string.Empty;
 
             if (claimList == null)
-                claimIdentity = await _httpContextAccessor.HttpContext.GetClaimIdentityAsync();
+            {
+                cacheKey = await _httpContextAccessor.HttpContext.GetClaimValueAsync(AppConst.ClaimAccessTokenCacheKey);
+
+                uid = await _httpContextAccessor.HttpContext.GetUserIdAsync();
+            }
             else
-                claimIdentity = GetSortedDictionary(claimList);
-
-            var cacheKeys = string.Empty;
-
-            foreach (var claim in claimIdentity)
             {
-                cacheKeys += $"{claim.Key}:{claim.Value}:";
+                cacheKey = claimList.GetClaimCacheKey();
+
+                uid = claimList.FirstOrDefault(c => c.IsPrimaryKey).Value; 
             }
-            cacheKeys = cacheKeys.TrimEnd(':');
 
-            return $"{_options.CachePrefix}:Login:AccessToken:{cacheKeys}";
+            return $"{_options.CachePrefix}:Login:AccessToken:{uid}:{cacheKey}";
         }
-
-        private SortedDictionary<string, string> GetSortedDictionary(List<UserClaimIdentity> claimList)
-        {
-            var dic = new SortedDictionary<string, string>();
-            foreach (var claim in claimList.Where(c=>c.IsCacheKey))
-            {
-                if (!dic.ContainsKey(claim.Type))
-                    dic.Add(claim.Type, claim.Value);
-            }
-            return dic;
-        }
-
     }
 }
