@@ -27,7 +27,7 @@ namespace DotNetCore.Authentication.JwtBearer
 
             await RedisHelper.SetAsync(key, accessToken, _options.ExpiresIn);
 
-            return await RedisHelper.SetAsync(await GetRefreshTokenCacheKeyAsync(refreshToken.Token), refreshToken, _options.RefreshExpiresIn); ;
+            return await RedisHelper.SetAsync(await GetRefreshTokenCacheKeyAsync(refreshToken.Token), refreshToken, _options.RefreshExpiresIn);
         }
 
         public async Task<AccessToken> GetAccessTokenAsync()
@@ -37,9 +37,9 @@ namespace DotNetCore.Authentication.JwtBearer
             return await RedisHelper.GetAsync<AccessToken>(key);
         }
 
-        public async Task<bool> RemoveAccessTokenAsync()
+        public async Task<bool> RemoveAccessTokenAsync(List<UserClaimIdentity> claimList = null)
         {
-            var key = await GetAccessTokenCacheKeyAsync();
+            var key = await GetAccessTokenCacheKeyAsync(claimList);
 
             return await RedisHelper.DelAsync(key) > 0;
         }

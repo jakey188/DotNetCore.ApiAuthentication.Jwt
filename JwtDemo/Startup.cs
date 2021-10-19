@@ -31,7 +31,7 @@ namespace JwtDemo
         {
             services.AddJwtAuthentication(c =>
             {
-                c.ExpiresIn = 100;
+                //c.ExpiresIn = 100;
                 c.CachePrefix = "Admin";
             })
              .AddAuthorizationFilter<AllowAnonymousAuthorizationFilter>()

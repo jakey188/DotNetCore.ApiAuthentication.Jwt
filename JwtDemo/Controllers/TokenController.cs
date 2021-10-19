@@ -21,14 +21,19 @@ namespace JwtDemo.Controllers
         [HttpGet("token")]
         public async Task<IActionResult> token(string id = "888")
         {
+            var appId = "xxxx";
+
             var claims = new UserClaimIdentity[] 
             {
                  new UserClaimIdentity(AppConst.ClaimUserId,id,true,true),
-                 new UserClaimIdentity("appid","xxxx",true),
+                 new UserClaimIdentity("appid",appId,true),
                  new UserClaimIdentity("name","赵四")
             };
 
-            var payload = new List<ClaimPayload>() { new ClaimPayload { Key = "data", Value = new { appId = "1", userId = "22" } } };
+            var payload = new Dictionary<string, object>()
+            {
+                { "data",  new LoginDto { AppId = appId, UserId = id  } }
+            };
 
             var token = await _builder.CreateTokenAsync(claims.ToList(), payload);
             return Ok(token);
@@ -37,16 +42,36 @@ namespace JwtDemo.Controllers
         [HttpGet("refresh")]
         public async Task<IActionResult> refresh(string refreshtoken)
         {
-            var dic = new Dictionary<string, string>() 
+            var replace = new Dictionary<string, string>() 
             {
                 {"appid","yyyy" }
             };
-            var token = await _builder.CreateRefreshTokenAsync(refreshtoken, dic);
+
+            var reToken =  await _builder.GetRefreshTokenAsync(refreshtoken);
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(reToken.ClaimPayload["data"]);
+
+            var dto = Newtonsoft.Json.JsonConvert.DeserializeObject<LoginDto>(json);
+
+            dto.AppId = replace["appid"];
+
+            var payload = new Dictionary<string, object>()
+            {
+                { "data",  dto }
+            };
+
+            var token = await _builder.CreateRefreshTokenAsync(refreshtoken, replace, payload);
 
             if (token.IsError)
                 return Ok(token.ErrorMessage);
 
             return Ok(token);
         }
+    }
+
+    public class LoginDto
+    {
+        public string AppId { get; set; }
+        public string UserId { get; set; }
     }
 }

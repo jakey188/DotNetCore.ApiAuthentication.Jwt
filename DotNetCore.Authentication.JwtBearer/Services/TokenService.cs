@@ -69,7 +69,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <param name="refreshToken"></param>
         /// <param name="replaceClaim"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null, Dictionary<string, string> replaceClaim=null)
+        public async Task<TokenResponse> CreateRefreshTokenAsync(string refreshToken = null, Dictionary<string, string> replaceClaim = null, Dictionary<string, object> payload = null)
         {
             var token = await _store.GetRefreshTokenAsync(refreshToken);
 
@@ -90,6 +90,9 @@ namespace DotNetCore.Authentication.JwtBearer
 
             if (replaceClaim != null && replaceClaim.Count > 0)
             {
+                //当切换账号后移除
+                await _store.RemoveAccessTokenAsync(token.UserClaimIdentitys);
+
                 foreach (var data in replaceClaim)
                 {
                     var claim = token.UserClaimIdentitys.FirstOrDefault(c => c.Key == data.Key);
@@ -100,7 +103,7 @@ namespace DotNetCore.Authentication.JwtBearer
                 }
             }
 
-            return await CreateTokenAsync(token.UserClaimIdentitys, token.ClaimPayload);
+            return await CreateTokenAsync(token.UserClaimIdentitys, payload);
         }
 
         /// <summary>
@@ -108,7 +111,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// </summary>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public async Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims, List<ClaimPayload> payload = null)
+        public async Task<TokenResponse> CreateTokenAsync(List<UserClaimIdentity> claims, Dictionary<string,object> payload = null)
         {
             var checkResponse = CheckClaims(claims);
 
@@ -125,11 +128,11 @@ namespace DotNetCore.Authentication.JwtBearer
 
             if (!claims.Any(c => c.Key == AppConst.ClaimAccessTokenCacheKey))
                 claimList.Add(new Claim(AppConst.ClaimAccessTokenCacheKey, claims.GetClaimCacheKey()));
-
+            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claimList),
-                Claims = payload?.ToDictionary(key => key.Key, value => value.Value),
+                Claims = payload,
                 Expires = now.AddSeconds(_options.ExpiresIn),
                 Issuer = _options.Issuer,
                 Audience = _options.Audience,
@@ -168,7 +171,7 @@ namespace DotNetCore.Authentication.JwtBearer
         /// <param name="response"></param>
         /// <param name="now"></param>
         /// <returns></returns>
-        private async Task AddTokenAsync(List<UserClaimIdentity> claimList, List<ClaimPayload> payload , TokenResponse response, DateTime now)
+        private async Task AddTokenAsync(List<UserClaimIdentity> claimList, Dictionary<string,object> payload , TokenResponse response, DateTime now)
         {
             var primaryValue = claimList.FirstOrDefault(c => c.IsPrimaryKey)?.Value;
 

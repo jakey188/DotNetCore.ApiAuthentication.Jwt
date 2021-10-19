@@ -49,9 +49,9 @@ namespace DotNetCore.Authentication.JwtBearer
             return await Task.FromResult<AccessToken>(null);
         }
 
-        public async Task<bool> RemoveAccessTokenAsync()
+        public async Task<bool> RemoveAccessTokenAsync(List<UserClaimIdentity> claimList = null)
         {
-            var key = await GetAccessTokenCacheKeyAsync();
+            var key = await GetAccessTokenCacheKeyAsync(claimList);
             _cache.Remove(key);
             return await Task.FromResult(true);
         }
